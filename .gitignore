@@ -1,0 +1,33 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+/.idea
+/.fleet
+/.nova
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+_ide_helper.php
+Homestead.json
+Homestead.yaml
+Thumbs.db
+npm-debug.log
+yarn-error.log
+
+# Pictures uploaded through the admin panel (logo, products, banners...)
+/public/images/uploads/*
+!/public/images/uploads/.gitkeep
+!/public/images/uploads/.htaccess
+
+# Small copies of admin-uploaded pictures are made on the server when a picture is uploaded
+/public/thumbs/*/images/uploads/

@@ -1,0 +1,15 @@
+; Keeps the queue worker running so order emails never slow checkout.
+; Only needed when QUEUE_CONNECTION is database or redis.
+; Copy to /etc/supervisor/conf.d/shopease-worker.conf, then:
+;   sudo supervisorctl reread && sudo supervisorctl update && sudo supervisorctl start shopease-worker:*
+[program:shopease-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/shopease/artisan queue:work --sleep=3 --tries=3 --max-time=3600
+directory=/var/www/shopease
+user=www-data
+numprocs=1
+autostart=true
+autorestart=true
+stopwaitsecs=3600
+redirect_stderr=true
+stdout_logfile=/var/www/shopease/storage/logs/worker.log

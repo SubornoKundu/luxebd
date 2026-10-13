@@ -1,0 +1,49 @@
+# ShopEase on nginx + PHP-FPM. Copy to /etc/nginx/sites-available/shopease, change the 3 lines marked CHANGE.
+server {
+    listen 80;
+    server_name example.com www.example.com;        # CHANGE: your domain
+    root /var/www/shopease/public;                   # CHANGE: path to the project's public folder
+
+    index index.php;
+    charset utf-8;
+
+    # Needed so phone photos and 10-picture galleries can be uploaded (default is only 1M).
+    client_max_body_size 64M;
+
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    # Uploaded pictures and built files can be cached by the browser for a long time
+    location ~* \.(?:jpg|jpeg|png|webp|gif|svg|ico|woff2?|css|js)$ {
+        expires 30d;
+        access_log off;
+        try_files $uri /index.php?$query_string;
+    }
+
+    # Uploaded folder must never run PHP
+    location ^~ /images/uploads/ {
+        location ~ \.php$ { return 403; }
+        expires 30d;
+        try_files $uri =404;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/run/php/php8.4-fpm.sock;  # CHANGE if your PHP version/socket differs
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+        fastcgi_read_timeout 120;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+    gzip on;
+    gzip_types text/css application/javascript application/json image/svg+xml;
+}
+
+# After this works, run: sudo certbot --nginx -d example.com -d www.example.com   (free HTTPS)
